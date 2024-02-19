@@ -1,0 +1,77 @@
+from scipy.optimize import  fsolve
+import numpy as np
+import matplotlib.pyplot as plt
+
+#Température humide
+"""
+#Pression de vapeur saturante
+def fc_pvs(Th):
+    a=2.7877
+    b=7.625
+    c=241.6
+    return 10**(a+(b*Th)/(c+Th)) 
+"""
+"""
+#Température Humide
+def fc_Th_résoudre(Th,pv=1100,T=20,p=100000):
+    pvs=fc_pvs(Th)
+    Cp=1006
+    Lv=2500000
+    return T+(pv-pvs)/(Cp*(p-pvs))*0.622*(Lv-2.65*T)-Th
+
+Th_init=10
+Th_solution = fsolve(fc_Th_résoudre,Th_init)
+print("la température humide est : ", Th_solution)
+"""
+"""
+#En fonction de phi et patm
+def fc_Th_résoudre(Th,phi=50,T=20,p=100000):
+    pvs=fc_pvs(Th)
+    pv=phi/100*pvs
+    Cp=1006
+    Lv=2500000
+    return T+(pv-pvs)/(Cp*(p-pvs))*0.622*(Lv-2.65*T)-Th
+
+Th_init=10
+Th_solution = fsolve(fc_Th_résoudre,Th_init)
+print("la température humide est : ", Th_solution)
+"""
+"""
+#Balayage
+phi = np.arange(0, 96, 1)
+T = np.arange(0, 41, 1)
+Cp = 1006
+patm = 101325
+Lv = 2500000
+Th_initial = 1
+ThApprox = np.zeros((len(phi), len(T)))
+Th_solution = np.zeros((len(phi), len(T)))
+M_diff = np.zeros((len(phi), len(T)))
+
+for i, phi_val in enumerate(phi):
+    for j, T_val in enumerate(T):
+        ThApprox[i, j] = 0.2831 * T_val * phi_val**0.2735 + 0.000381 * phi_val**2 + 0.01289 * phi_val - 4.0962
+
+def fc_Th_resoudre(Th, phi, patm, T_val):
+    pv = phi / 100 * fc_pvs(Th)
+    return T_val + ((pv - fc_pvs(Th)) / (Cp * (patm - fc_pvs(Th)))) * 0.622 * (Lv - 2.65 * T_val) - Th
+
+def fc_Th(T_val, phi, patm):
+    Th_solution = fsolve(fc_Th_resoudre, Th_initial, args=(phi, patm, T_val))
+    return Th_solution
+
+for i, phi_val in enumerate(phi):
+    for j, T_val in enumerate(T):
+        Th_solution[i, j] = fc_Th(T_val, phi_val, patm)
+
+for i in range(len(phi)):
+    for j in range(len(T)):
+        M_diff[i, j] = Th_solution[i, j] - ThApprox[i, j]
+
+plt.imshow(M_diff, origin='lower', extent=[T[0], T[-1], phi[0], phi[-1]], aspect='auto')
+plt.colorbar(label='Différence (Th_solution - ThApprox)')
+plt.xlabel('T')
+plt.ylabel('phi')
+plt.title('Différence entre Th_solution et ThApprox')
+plt.show()
+"""
